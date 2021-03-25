@@ -18,7 +18,10 @@ namespace Tweetbook.Services
         }
         public async Task<List<Post>> GetPostsAsync()
         {
-            return await _dataContext.Posts.ToListAsync();
+            var queryable = _dataContext.Posts.AsQueryable();
+
+            return await queryable.Include(x => x.Tags).ToListAsync();
+            //return await _dataContext.Posts.ToListAsync();
         }
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
