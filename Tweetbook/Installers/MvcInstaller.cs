@@ -51,6 +51,14 @@ namespace Tweetbook.Installers
                     x.SaveToken = true;
                     x.TokenValidationParameters = tokenValidationParameters;
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TagViewer", builder =>
+                {
+                    builder.RequireClaim("tags.view", "true");
+                });
+            });
             
             services.AddSwaggerGen(options =>
             {

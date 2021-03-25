@@ -28,6 +28,9 @@ namespace Tweetbook.Services
 
         public async Task<bool> CreatePostAsync(Post post)
         {
+            post.Tags?.ForEach(x => x.TagName = x.TagName.ToLower());
+
+            await AddNewTags(post);
             await _dataContext.Posts.AddAsync(post);
             var created = await _dataContext.SaveChangesAsync();
 
@@ -64,6 +67,26 @@ namespace Tweetbook.Services
                 return false;
 
             return true;
+        }
+
+        public async Task<List<Tag>> GetAllTagsAsync()
+        {
+            return await _dataContext.Tags.AsNoTracking().ToListAsync();
+        }
+        
+        private async Task AddNewTags(Post post)
+        {
+            foreach (var tag in post.Tags)
+            {
+                var existingTag =
+                    await _dataContext.Tags.SingleOrDefaultAsync(x =>
+                        x.Name == tag.TagName);
+                if (existingTag != null)
+                    continue;
+
+                await _dataContext.Tags.AddAsync(new Tag
+                    {Name = tag.TagName, CreatedOn = DateTime.UtcNow, CreatorId = post.UserId});
+            }
         }
     }
 }
