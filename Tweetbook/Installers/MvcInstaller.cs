@@ -55,7 +55,11 @@ namespace Tweetbook.Installers
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo {Title = "TweetBook API", Version = "v1"});
-                
+
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[0]}
+                };
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the bearer scheme",
@@ -63,18 +67,15 @@ namespace Tweetbook.Installers
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey
                 });
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-                    { 
-                        new OpenApiSecurityScheme 
-                        { 
-                            Reference = new OpenApiReference 
-                            { 
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer" 
-                            } 
-                        },
-                        new string[] { } 
-                    } 
+                
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme{Reference = new OpenApiReference
+                    {
+                        Id = "Bearer",
+                        Type = ReferenceType.SecurityScheme
+                    }}, new List<string>()}
                 });
             });
 

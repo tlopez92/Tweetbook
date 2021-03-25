@@ -29,25 +29,33 @@ namespace Tweetbook.Services
         }
         public async Task<AuthenticationResult> RegisterAsync(string email, string password)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user is not null)
+            try
             {
-                return new AuthenticationResult()
+                var user = await _userManager.FindByEmailAsync(email);
+
+
+                if (user is not null)
                 {
-                    Errors = new[] {"User already exists"}
+                    return new AuthenticationResult()
+                    {
+                        Errors = new[] {"User already exists"}
+                    };
+                }
+
+                var newUser = new IdentityUser()
+                {
+                    Email = email,
+                    UserName = email
                 };
+
+                var createdUser = await _userManager.CreateAsync(newUser, password);
+
+                return await GenerateAuthenticationResultForUserAsync(newUser);
             }
-
-            var newUser = new IdentityUser()
+            catch (Exception ex)
             {
-                Email = email,
-                UserName = email
-            };
-
-            var createdUser = await _userManager.CreateAsync(newUser, password);
-
-            return await GenerateAuthenticationResultForUserAsync(newUser);
+                throw ex;
+            }
         }
 
         public async Task<AuthenticationResult> LoginAsync(string email, string password)
